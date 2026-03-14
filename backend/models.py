@@ -74,3 +74,19 @@ class Prescription(Base):
     patient = relationship("Patient", back_populates="prescriptions")
     doctor = relationship("Doctor", back_populates="prescriptions")
     pharmacy = relationship("Pharmacy", back_populates="prescriptions")
+
+class Appointment(Base):
+    __tablename__ = "appointments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id"))
+    doctor_id = Column(Integer, ForeignKey("doctors.id"))
+    
+    date = Column(String)  # YYYY-MM-DD
+    time = Column(String)  # HH:MM AM/PM
+    reason = Column(String)
+    status = Column(String, default="scheduled")  # scheduled, completed, cancelled
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Note: If we wanted strict bidirectional lookups we'd add back_populates on Patient/Doctor, 
+    # but for this feature MVP, simple foreign keys are enough.

@@ -49,3 +49,16 @@ def create_prescription(db: Session, prescription: schemas.PrescriptionCreate):
 
 def get_prescriptions(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Prescription).offset(skip).limit(limit).all()
+
+def create_appointment(db: Session, appointment: schemas.AppointmentCreate):
+    db_appointment = models.Appointment(**appointment.model_dump())
+    db.add(db_appointment)
+    db.commit()
+    db.refresh(db_appointment)
+    return db_appointment
+
+def get_doctor_appointments(db: Session, doctor_id: int):
+    return db.query(models.Appointment).filter(models.Appointment.doctor_id == doctor_id).all()
+
+def get_patient_appointments(db: Session, patient_id: int):
+    return db.query(models.Appointment).filter(models.Appointment.patient_id == patient_id).all()

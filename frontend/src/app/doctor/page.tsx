@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function DoctorDashboard() {
   const [diagnosis, setDiagnosis] = useState("");
@@ -8,6 +8,29 @@ export default function DoctorDashboard() {
   const [vitals, setVitals] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<any>(null);
+  
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [isLoadingAppts, setIsLoadingAppts] = useState(true);
+
+  useEffect(() => {
+    // Fetch appointments for Doctor with ID 1
+    const fetchAppointments = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+        const response = await fetch(`${apiUrl}/doctors/1/appointments`);
+        if (response.ok) {
+          const data = await response.json();
+          setAppointments(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch appointments", error);
+      } finally {
+        setIsLoadingAppts(false);
+      }
+    };
+
+    fetchAppointments();
+  }, []);
 
   const handleGenerate = async () => {
     if (!diagnosis || !symptoms) {
@@ -90,22 +113,33 @@ export default function DoctorDashboard() {
         
         {/* Left column: Patient Queue */}
         <div className="bg-white rounded-xl shadow p-6 lg:col-span-1 border-t-4 border-teal-500">
-          <h2 className="text-lg font-bold mb-4 text-gray-800 border-b pb-2">Today's Appointments</h2>
-          <ul className="space-y-3">
-            <li className="p-3 bg-teal-50 rounded border border-teal-100 flex justify-between items-center cursor-pointer hover:bg-teal-100 transition">
-              <div>
-                <p className="font-semibold text-gray-800">John Doe</p>
-                <p className="text-xs text-gray-500">10:00 AM - Fever</p>
-              </div>
-              <span className="bg-teal-600 text-white text-xs px-2 py-1 rounded-full">Next</span>
-            </li>
-            <li className="p-3 bg-gray-50 rounded border border-gray-100 flex justify-between items-center cursor-pointer hover:bg-gray-100 transition">
-              <div>
-                <p className="font-semibold text-gray-800">Jane Smith</p>
-                <p className="text-xs text-gray-500">11:30 AM - Checkup</p>
-              </div>
-            </li>
-          </ul>
+          <h2 className="text-lg font-bold mb-4 text-gray-800 border-b pb-2 flex justify-between items-center">
+            Today's Appointments
+            <span className="bg-teal-100 text-teal-800 text-xs px-2 py-1 rounded-full">{appointments.length} Total</span>
+          </h2>
+          
+          {isLoadingAppts ? (
+            <p className="text-sm text-gray-500 text-center py-4">Loading appointments...</p>
+          ) : appointments.length === 0 ? (
+            <div className="text-center py-8">
+              <span className="text-4xl">🍵</span>
+              <p className="text-sm text-gray-500 mt-2">No appointments scheduled.</p>
+            </div>
+          ) : (
+            <ul className="space-y-3">
+              {appointments.map((appt, idx) => (
+                <li key={appt.id} className={`p-3 rounded border flex justify-between items-center cursor-pointer transition ${idx === 0 ? 'bg-teal-50 border-teal-200 hover:bg-teal-100' : 'bg-gray-50 border-gray-100 hover:bg-gray-100'}`}>
+                  <div>
+                    <div className="flex items-center space-x-2">
+                       <p className="font-semibold text-gray-800">Patient ID: {appt.patient_id}</p>
+                       {idx === 0 && <span className="bg-teal-600 text-white text-[10px] px-2 py-0.5 rounded-full uppercase font-bold tracking-wider">Next</span>}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1"><span className="font-medium text-gray-700">{appt.time}</span> • {appt.reason}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         {/* Right column: AI Prescription Tool */}

@@ -87,3 +87,21 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     email: Optional[str] = None
     role: Optional[str] = None
+
+class AppointmentBase(BaseModel):
+    patient_id: int
+    doctor_id: int
+    date: str
+    time: str
+    reason: str
+
+class AppointmentCreate(AppointmentBase):
+    pass
+
+class Appointment(AppointmentBase):
+    id: int
+    status: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

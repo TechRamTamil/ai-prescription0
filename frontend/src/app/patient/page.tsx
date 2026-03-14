@@ -7,6 +7,13 @@ export default function PatientDashboard() {
   const [isUploading, setIsUploading] = useState(false);
   const [digitalResult, setDigitalResult] = useState<any>(null);
 
+  // Appointment Modal State
+  const [isApptModalOpen, setIsApptModalOpen] = useState(false);
+  const [apptDate, setApptDate] = useState("");
+  const [apptTime, setApptTime] = useState("");
+  const [apptReason, setApptReason] = useState("");
+  const [isBooking, setIsBooking] = useState(false);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setSelectedFile(e.target.files[0]);
@@ -44,6 +51,44 @@ export default function PatientDashboard() {
     }
   };
 
+  const handleBookAppointment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsBooking(true);
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      // Using mock IDs for patient and doctor since auth context is absent in this demo
+      const response = await fetch(`${apiUrl}/appointments/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          patient_id: 1, 
+          doctor_id: 1, 
+          date: apptDate,
+          time: apptTime,
+          reason: apptReason
+        }),
+      });
+
+      if (response.ok) {
+        alert("Appointment booked successfully!");
+        setIsApptModalOpen(false);
+        setApptDate("");
+        setApptTime("");
+        setApptReason("");
+      } else {
+        alert("Failed to book appointment.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Network error connecting to the API.");
+    } finally {
+      setIsBooking(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-sky-50 flex flex-col">
       <header className="bg-sky-600 text-white p-4 shadow-md flex justify-between items-center">
@@ -58,10 +103,13 @@ export default function PatientDashboard() {
         
         <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8 flex flex-col md:flex-row justify-between items-center gap-6 border-b-4 border-sky-400">
           <div>
-            <h2 className="text-3xl font-bold text-gray-800">Hello, Michael</h2>
+            <h2 className="text-3xl font-bold text-gray-800">Hello, Patient</h2>
             <p className="text-gray-500 mt-2">Here is a summary of your health activity.</p>
           </div>
-          <button className="w-full md:w-auto bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-6 rounded-xl shadow transition transform hover:-translate-y-1">
+          <button 
+            onClick={() => setIsApptModalOpen(true)}
+            className="w-full md:w-auto bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-6 rounded-xl shadow transition transform hover:-translate-y-1"
+          >
             Book New Appointment
           </button>
         </div>
@@ -172,6 +220,88 @@ export default function PatientDashboard() {
 
         </div>
       </main>
+
+      {/* Appointment Booking Modal */}
+      {isApptModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all">
+            <div className="bg-sky-600 p-4 flex justify-between items-center">
+              <h3 className="text-xl font-bold text-white">Book an Appointment</h3>
+              <button 
+                onClick={() => setIsApptModalOpen(false)}
+                className="text-sky-200 hover:text-white transition"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <form onSubmit={handleBookAppointment} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Select Doctor</label>
+                <select className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none">
+                  <option value="1">Dr. Smith (General Physician)</option>
+                  <option value="2">Dr. Sarah (Cardiologist)</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                  <input 
+                    type="date" 
+                    required
+                    value={apptDate}
+                    onChange={(e) => setApptDate(e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                  <input 
+                    type="time" 
+                    required
+                    value={apptTime}
+                    onChange={(e) => setApptTime(e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none" 
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Visit</label>
+                <textarea 
+                  rows={3}
+                  required
+                  value={apptReason}
+                  onChange={(e) => setApptReason(e.target.value)}
+                  placeholder="E.g., Chronic headache for 3 days"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none"
+                ></textarea>
+              </div>
+
+              <div className="pt-4 flex justify-end space-x-3">
+                <button 
+                  type="button" 
+                  onClick={() => setIsApptModalOpen(false)}
+                  className="px-5 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={isBooking}
+                  className={`px-5 py-2.5 font-bold rounded-lg text-white shadow transition ${
+                    isBooking ? 'bg-sky-400 cursor-wait' : 'bg-sky-600 hover:bg-sky-700'
+                  }`}
+                >
+                  {isBooking ? 'Booking...' : 'Confirm Booking'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

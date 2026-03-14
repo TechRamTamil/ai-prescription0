@@ -89,3 +89,16 @@ async def upload_handwritten_prescription(
     
     # Return the digitized prescription
     return digital_result
+
+@app.post("/appointments/", response_model=schemas.Appointment)
+def create_appointment(appointment: schemas.AppointmentCreate, db: Session = Depends(get_db)):
+    # In a real app we would ensure the doctor/patient exist here.
+    return crud.create_appointment(db=db, appointment=appointment)
+
+@app.get("/doctors/{doctor_id}/appointments", response_model=list[schemas.Appointment])
+def read_doctor_appointments(doctor_id: int, db: Session = Depends(get_db)):
+    return crud.get_doctor_appointments(db, doctor_id=doctor_id)
+
+@app.get("/patients/{patient_id}/appointments", response_model=list[schemas.Appointment])
+def read_patient_appointments(patient_id: int, db: Session = Depends(get_db)):
+    return crud.get_patient_appointments(db, patient_id=patient_id)
