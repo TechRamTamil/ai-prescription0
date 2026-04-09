@@ -91,6 +91,7 @@ class TokenData(BaseModel):
 class AppointmentBase(BaseModel):
     patient_id: int
     doctor_id: int
+    patient_email: Optional[str] = None # Allowing email input from frontend directly
     date: str
     time: str
     reason: str
@@ -105,3 +106,31 @@ class Appointment(AppointmentBase):
 
     class Config:
         from_attributes = True
+
+class AIRequest(BaseModel):
+    symptoms: str
+
+class PrescriptionAIRequest(BaseModel):
+    diagnosis: str
+    symptoms: str
+    patient_age: int
+    allergies: Optional[str] = ""
+
+class HealthMetricBase(BaseModel):
+    type: str # 'BP', 'Weight', 'Sugar', 'HeartRate'
+    value: float
+    unit: str
+    patient_id: int
+
+class HealthMetricCreate(HealthMetricBase):
+    pass
+
+class HealthMetric(HealthMetricBase):
+    id: int
+    timestamp: datetime
+
+    class Config:
+        from_attributes = True
+
+class ChatRequest(BaseModel):
+    message: str

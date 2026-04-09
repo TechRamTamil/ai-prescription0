@@ -1,0 +1,46 @@
+services:
+  # Backend Service
+  - type: web
+    name: ai-prescription-backend
+    env: python
+    region: ohio
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ai-prescription-db
+          property: connectionString
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: "*" # Update this to your frontend URL after deployment
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: DOCTOR_SECRET_KEY
+        sync: false
+
+  # Frontend Service (if choosing to host on Render, though Vercel is recommended)
+  - type: web
+    name: ai-prescription-frontend
+    env: node
+    region: ohio
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: ai-prescription-backend
+          property: host
+
+databases:
+  - name: ai-prescription-db
+    plan: free
+    region: ohio

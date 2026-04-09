@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, JSON, Text
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, JSON, Text, Float
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from database import Base
@@ -31,6 +31,8 @@ class Patient(Base):
 
     user = relationship("User", back_populates="patient_profile")
     prescriptions = relationship("Prescription", back_populates="patient")
+    health_metrics = relationship("HealthMetric", back_populates="patient")
+    appointments = relationship("Appointment", back_populates="patient")
 
 
 class Doctor(Base):
@@ -43,6 +45,7 @@ class Doctor(Base):
 
     user = relationship("User", back_populates="doctor_profile")
     prescriptions = relationship("Prescription", back_populates="doctor")
+    appointments = relationship("Appointment", back_populates="doctor")
 
 
 class Pharmacy(Base):
@@ -88,5 +91,17 @@ class Appointment(Base):
     status = Column(String, default="scheduled")  # scheduled, completed, cancelled
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    # Note: If we wanted strict bidirectional lookups we'd add back_populates on Patient/Doctor, 
-    # but for this feature MVP, simple foreign keys are enough.
+    patient = relationship("Patient", back_populates="appointments")
+    doctor = relationship("Doctor", back_populates="appointments")
+
+class HealthMetric(Base):
+    __tablename__ = "health_metrics"
+
+    id = Column(Integer, primary_key=True, index=True)
+    type = Column(String)  # 'BP', 'Weight', 'Sugar', 'HeartRate'
+    value = Column(Float)
+    unit = Column(String)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+    patient_id = Column(Integer, ForeignKey("patients.id"))
+
+    patient = relationship("Patient", back_populates="health_metrics")

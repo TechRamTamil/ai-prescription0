@@ -32,6 +32,25 @@ def verify_password(plain_password, hashed_password):
     return crud.pwd_context.verify(plain_password, hashed_password)
 
 async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    if token == "guest-token":
+        # Check if guest user exists in DB
+        guest_user = crud.get_user_by_email(db, email="guest@prescription.ai")
+        if not guest_user:
+            # Create guest user on the fly if missing
+            new_user = schemas.UserCreate(
+                name="Guest Physician",
+                email="guest@prescription.ai",
+                password="guest-password",
+                role="doctor"
+            )
+            guest_user = crud.create_user(db, new_user)
+            # Ensure doctor profile exists
+            crud.create_doctor_profile(db, schemas.DoctorCreate(
+                specialization="General Medicine",
+                license_number="GUEST-001"
+            ), user_id=guest_user.id)
+        return guest_user
+
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",

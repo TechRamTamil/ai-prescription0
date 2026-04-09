@@ -1,0 +1,109 @@
+C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\google\api_core\_python_version_support.py:246: FutureWarning: You are using a non-supported Python version (3.9.13). Google will not post any further updates to google.api_core supporting this Python version. Please upgrade to the latest Python version, or at least Python 3.10, and then update google.api_core.
+  warnings.warn(message, FutureWarning)
+C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\google\auth\__init__.py:54: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\google\oauth2\__init__.py:40: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+D:\prescription\backend\test_gemini.py:1: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+Traceback (most recent call last):
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\google\api_core\grpc_helpers.py", line 55, in error_remapped_callable
+    return callable_(*args, **kwargs)
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\grpc\_interceptor.py", line 277, in __call__
+    response, ignored_call = self._with_call(
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\grpc\_interceptor.py", line 332, in _with_call
+    return call.result(), call
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\grpc\_channel.py", line 440, in result
+    raise self
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\grpc\_interceptor.py", line 315, in continuation
+    response, call = self._thunk(new_method).with_call(
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\grpc\_channel.py", line 1192, in with_call
+    return _end_unary_response_blocking(state, call, True, None)
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\grpc\_channel.py", line 1006, in _end_unary_response_blocking
+    raise _InactiveRpcError(state)  # pytype: disable=not-instantiable
+grpc._channel._InactiveRpcError: <_InactiveRpcError of RPC that terminated with:
+	status = StatusCode.NOT_FOUND
+	details = "models/gemini-1.5-flash-latest is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods."
+	debug_error_string = "UNKNOWN:Error received from peer ipv6:%5B2001:4860:4802:32::223%5D:443 {grpc_status:5, grpc_message:"models/gemini-1.5-flash-latest is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods."}"
+>
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\prescription\backend\test_gemini.py", line 9, in <module>
+    print(model.generate_content('hi'))
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\google\api_core\gapic_v1\method.py", line 128, in __call__
+    return wrapped_func(*args, **kwargs)
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\google\api_core\retry\retry_unary.py", line 294, in retry_wrapped_func
+    return retry_target(
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\google\api_core\retry\retry_unary.py", line 156, in retry_target
+    next_sleep = _retry_error_helper(
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\google\api_core\retry\retry_base.py", line 216, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\google\api_core\retry\retry_unary.py", line 147, in retry_target
+    result = target()
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\google\api_core\grpc_helpers.py", line 57, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.NotFound: 404 models/gemini-1.5-flash-latest is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+Traceback (most recent call last):
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\google\api_core\grpc_helpers.py", line 55, in error_remapped_callable
+    return callable_(*args, **kwargs)
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\grpc\_interceptor.py", line 277, in __call__
+    response, ignored_call = self._with_call(
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\grpc\_interceptor.py", line 332, in _with_call
+    return call.result(), call
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\grpc\_channel.py", line 440, in result
+    raise self
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\grpc\_interceptor.py", line 315, in continuation
+    response, call = self._thunk(new_method).with_call(
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\grpc\_channel.py", line 1192, in with_call
+    return _end_unary_response_blocking(state, call, True, None)
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\grpc\_channel.py", line 1006, in _end_unary_response_blocking
+    raise _InactiveRpcError(state)  # pytype: disable=not-instantiable
+grpc._channel._InactiveRpcError: <_InactiveRpcError of RPC that terminated with:
+	status = StatusCode.NOT_FOUND
+	details = "models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods."
+	debug_error_string = "UNKNOWN:Error received from peer ipv6:%5B2001:4860:4802:32::223%5D:443 {grpc_status:5, grpc_message:"models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods."}"
+>
+
+The above exception was the direct cause of the following exception:
+
+Trying 1.5-flash-latest:
+Error with 1.5-flash-latest:
+Trying 1.5-flash:
+Error with 1.5-flash:
+Traceback (most recent call last):
+  File "D:\prescription\backend\test_gemini.py", line 17, in <module>
+    print(model.generate_content('hi'))
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\google\api_core\gapic_v1\method.py", line 128, in __call__
+    return wrapped_func(*args, **kwargs)
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\google\api_core\retry\retry_unary.py", line 294, in retry_wrapped_func
+    return retry_target(
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\google\api_core\retry\retry_unary.py", line 156, in retry_target
+    next_sleep = _retry_error_helper(
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\google\api_core\retry\retry_base.py", line 216, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\google\api_core\retry\retry_unary.py", line 147, in retry_target
+    result = target()
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+  File "C:\Users\RADHA\AppData\Local\Programs\Python\Python39\lib\site-packages\google\api_core\grpc_helpers.py", line 57, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.NotFound: 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
