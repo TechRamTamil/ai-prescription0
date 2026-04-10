@@ -14,36 +14,39 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
+import time
+
+MODELS_TO_TRY = [
+    'gemini-2.0-flash',
+    'gemini-1.5-flash',
+    'gemini-1.0-pro',
+]
+
+def _call_gemini(prompt: str, retries: int = 2) -> str:
+    """Call Gemini with automatic retry on rate limit (429)."""
+    for model_name in MODELS_TO_TRY:
+        for attempt in range(retries):
+            try:
+                model = genai.GenerativeModel(model_name)
+                response = model.generate_content(prompt)
+                return response.text
+            except Exception as e:
+                err = str(e)
+                if '429' in err or 'quota' in err.lower() or 'rate' in err.lower():
+                    wait = 3 * (attempt + 1)
+                    logger.warning(f"Rate limit on {model_name}, retrying in {wait}s...")
+                    time.sleep(wait)
+                    continue
+                else:
+                    logger.warning(f"Model {model_name} failed: {e}")
+                    break
+    raise Exception("All Gemini models quota exceeded.")
+
 def generate_prescription(diagnosis: str, symptoms: str, patient_age: int, allergies: str = "") -> Dict[str, Any]:
     if not GEMINI_API_KEY:
         return get_mock_prescription(diagnosis, allergies)
 
     try:
-        # Define a list of authorized models to try in order of preference
-        models_to_try = [
-            'gemini-2.0-flash',
-            'gemini-flash-latest',
-            'gemini-1.5-flash-latest',
-            'gemini-pro-latest'
-        ]
-        
-        model = None
-        last_error = "No supported models found."
-        
-        for model_name in models_to_try:
-            try:
-                model = genai.GenerativeModel(model_name)
-                # Quick test (lightweight)
-                model.generate_content("Briefly say hello.") 
-                break # Found a working model!
-            except Exception as e:
-                last_error = str(e)
-                model = None
-                continue
-        
-        if not model:
-            raise Exception(f"All authorized models failed/quota exceeded. Last Error: {last_error}")
-            
         prompt = f"""
         As a clinical assistant, suggest a safe prescription for:
         Diagnosis: {diagnosis}
@@ -61,14 +64,11 @@ def generate_prescription(diagnosis: str, symptoms: str, patient_age: int, aller
             "dosage_risk": "Analysis of dosage safety for age/history"
           }}
         """
-        response = model.generate_content(prompt)
-        text = response.text.replace("```json", "").replace("```", "").strip()
+        text = _call_gemini(prompt)
+        text = text.replace("```json", "").replace("```", "").strip()
         result = json.loads(text)
-        
-        # Ensure fields exist
         if "tamil_instructions" not in result: result["tamil_instructions"] = []
         if "toxicology_report" not in result: result["toxicology_report"] = {}
-        
         return result
     except Exception as e:
         print(f"Gemini error: {e}")
