@@ -106,11 +106,6 @@ export default function SettingsPage() {
   // Save state
   const [saved, setSaved] = useState(false);
 
-  if (!user) {
-    router.push('/');
-    return null;
-  }
-
   const triggerSync = () => {
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);

@@ -21,6 +21,8 @@ export default function PatientDashboard() {
   const [apptEmail, setApptEmail] = useState("");
   const [apptReason, setApptReason] = useState("");
   const [isBooking, setIsBooking] = useState(false);
+  const [doctors, setDoctors] = useState<any[]>([]);
+  const [selectedDoctorId, setSelectedDoctorId] = useState<number>(1);
   const [patientProfile, setPatientProfile] = useState<any>(null);
   const [prescriptions, setPrescriptions] = useState<any[]>([]);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
@@ -74,8 +76,27 @@ export default function PatientDashboard() {
       }
     };
 
+    const fetchDoctors = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+        const res = await fetch(`${apiUrl}/admin/stats`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          // Extract doctors from recent_activity
+          const doctorUsers = (data.recent_activity || []).filter((u: any) => u.role === 'doctor');
+          setDoctors(doctorUsers);
+          if (doctorUsers.length > 0) setSelectedDoctorId(doctorUsers[0].id);
+        }
+      } catch (e) {
+        console.error("Failed to fetch doctors", e);
+      }
+    };
+
     fetchPatientProfile();
     fetchHealthMetrics();
+    fetchDoctors();
   }, [token]);
 
   const handleAddMetric = async () => {
@@ -159,7 +180,7 @@ export default function PatientDashboard() {
         },
         body: JSON.stringify({
           patient_id: patientProfile?.id || 1, 
-          doctor_id: 1, // Defaulting to first doctor for demo
+          doctor_id: selectedDoctorId,
           patient_email: apptEmail,
           date: apptDate,
           time: apptTime,
@@ -393,11 +414,20 @@ export default function PatientDashboard() {
             <form onSubmit={handleBookAppointment} className="p-8 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Specialist</label>
-                    <select className="w-full text-sm font-bold">
-                      <option value="1">Dr. Smith (General Physician)</option>
-                      <option value="2">Dr. Sarah (Cardiologist)</option>
-                    </select>
+                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Specialist</label>
+                     <select 
+                       className="w-full text-sm font-bold"
+                       value={selectedDoctorId}
+                       onChange={(e) => setSelectedDoctorId(Number(e.target.value))}
+                     >
+                       {doctors.length > 0 ? (
+                         doctors.map((d: any) => (
+                           <option key={d.id} value={d.id}>Dr. {d.name}</option>
+                         ))
+                       ) : (
+                         <option value={1}>Dr. (Available Doctor)</option>
+                       )}
+                     </select>
                  </div>
                  <div className="space-y-1.5">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Contact Email</label>
