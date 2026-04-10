@@ -44,11 +44,18 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
                 role="doctor"
             )
             guest_user = crud.create_user(db, new_user)
-            # Ensure doctor profile exists
-            crud.create_doctor_profile(db, schemas.DoctorCreate(
-                specialization="General Medicine",
-                license_number="GUEST-001"
-            ), user_id=guest_user.id)
+
+        # Always ensure doctor profile exists (even for existing guest users)
+        existing_profile = crud.get_doctor_by_user_id(db, guest_user.id)
+        if not existing_profile:
+            try:
+                crud.create_doctor_profile(db, schemas.DoctorCreate(
+                    specialization="General Medicine",
+                    license_number="GUEST-001"
+                ), user_id=guest_user.id)
+            except Exception:
+                pass  # Profile may already exist with same license_number
+
         return guest_user
 
     credentials_exception = HTTPException(
