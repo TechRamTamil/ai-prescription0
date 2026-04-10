@@ -77,9 +77,20 @@ export default function DoctorDashboard() {
         const profile = await response.json();
         setDoctorProfile(profile);
         fetchAppointments(profile.id);
+      } else {
+        // Guest user or no doctor profile → fetch all appointments via admin stats
+        const statsRes = await fetch(`${apiUrl}/admin/stats`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (statsRes.ok) {
+          const stats = await statsRes.json();
+          setAppointments(stats.recent_appointments || []);
+        }
+        setIsLoadingAppts(false);
       }
     } catch (error) {
       console.error("Failed to fetch doctor profile", error);
+      setIsLoadingAppts(false);
     }
   };
 
